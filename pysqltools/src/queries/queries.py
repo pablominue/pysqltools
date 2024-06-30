@@ -10,8 +10,64 @@ from typing import Generator
 from multimethod import multimethod
 
 
-class SQLStatement(str):
-    """SQLStatement Class"""
+class SQLString(str):
+    """
+    String Class used to format queries without adding single quotes.
+    """
+
+
+@multimethod
+def assign_parameter(param: str) -> str:
+    """
+    assign parameter function
+    """
+    return "'" + param + "'"
+
+
+@multimethod
+def assign_parameter(param: int) -> str:
+    """
+    assign parameter function
+    """
+    return param
+
+
+@multimethod
+def assign_parameter(param: SQLString) -> str:
+    """
+    assign parameter function
+    """
+    return param
+
+
+@multimethod
+def assign_parameter(param: list[str]) -> str:
+    """
+    assign parameter function
+    """
+    string = "("
+    for item in param:
+        string += f"'{item}', "
+    return string[:-2] + ")"
+
+
+@multimethod
+def assign_parameter(param: list[int]) -> str:
+    """
+    assign parameter function
+    """
+    string = "("
+    for item in param:
+        string += f"{item}, "
+    return string[:-2] + ")"
+
+
+@multimethod
+def assign_parameter(param: datetime.datetime) -> str:
+    """
+    assign parameter function
+    """
+    return "datetime '" + param.strftime("%Y-%m-%d %H:%M:%S") + "'"
 
 
 class Query:
@@ -90,8 +146,9 @@ class Query:
         sql.format(my_table=SQLString("schema.table"), country_list = ['ES', 'GB'])
         """
         for k, v in kwargs.items():
-            self.sql = self.sql.replace("{{" + k + "}}", __assign_parameter(v))
-        return self.sql
+            self.sql = self.sql.replace("{{" + k + "}}", assign_parameter(v))
+
+        return self
 
     def __str__(self):
         return self.sql
@@ -102,45 +159,3 @@ class Query:
             "ctes": list(self.ctes),
             "parameters": list(self.parameters()),
         }
-
-
-class SQLString(str):
-    """
-    String Class used to format queries without adding single quotes.
-    """
-
-
-@multimethod
-def __assign_parameter(param: str) -> str:
-    return "'" + param + "'"
-
-
-@multimethod
-def __assign_parameter(param: int) -> str:
-    return param
-
-
-@multimethod
-def __assign_parameter(param: SQLString) -> str:
-    return param
-
-
-@multimethod
-def __assign_parameter(param: list[str]) -> str:
-    string = "("
-    for item in param:
-        string += f"'{item}', "
-    return string[:-2] + ")"
-
-
-@multimethod
-def __assign_parameter(param: list[int]) -> str:
-    string = "("
-    for item in param:
-        string += f"{item}, "
-    return string[:-2] + ")"
-
-
-@multimethod
-def __assign_parameter(param: datetime.datetime) -> str:
-    return "datetime '" + param.strftime("%Y-%m-%d %H:%M:%S") + "'"
