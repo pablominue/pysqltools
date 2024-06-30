@@ -36,3 +36,12 @@ def test_tables():
 
     tables = [t for t in q.tables()]
     assert len(tables) == 5
+
+
+def test_parameter():
+    with open("tests/queries/test_cte.sql", "r", encoding="utf-8") as f:
+        sql = f.read()
+    q = Query(sql=sql)
+
+    q.format(parameter_table="testschema.xyz")
+    assert "testschema.xyz" in q.sql

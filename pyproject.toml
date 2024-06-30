@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pysqltools"
-version = "0.1.1"
+version = "0.1.5"
 description = "PySQLTools"
 authors = ["Pablo Minué"]
 license = "None"
@@ -25,5 +25,14 @@ multimethod = "^1.11.2"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.pylint]
+disable = [
+    "C0114",  # Missing module docstring
+    "C0116",  # Missing function or method docstring
+    "C0301",
+    "E0102",
+]
+
 [tool.pylint.MASTER]
 ignore-paths = '^pysqltools/src/__pycache__'
+

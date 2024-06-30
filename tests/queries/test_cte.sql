@@ -18,7 +18,7 @@ test_2_cte as (
         *,
         count(*) over (partition by id order by dt desc) as id_total
 
-    from table3 c
+    from {{parameter_table}} c
 )
 
 select
@@ -30,4 +30,4 @@ from
     join
         test_2_cte y
         on x.id = y.id
-        
+

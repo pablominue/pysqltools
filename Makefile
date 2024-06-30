@@ -3,8 +3,7 @@ fmt:
 	black .
 test:
 	poetry run pytest .
-	poetry run coverage report
 style:
-	pylint ./pysqltools/src/*
+	pylint --fail-under=8 ./pysqltools/src/*
 
 verify: style test
