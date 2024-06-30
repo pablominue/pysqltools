@@ -1,3 +1,8 @@
+"""
+This module contains all the classes and 
+functions to interact with SQL text objects.
+"""
+
 import datetime
 import re
 from typing import Generator
@@ -6,46 +11,83 @@ from multimethod import multimethod
 
 
 class SQLStatement(str):
-    pass
+    """SQLStatement Class"""
 
 
 class Query:
+    """
+    ## Class Query:
+    ### Description
+    The query class allows you to instantiate a SQL Query string to perform different methods,
+     collect ctes, statements, etc
+
+    ### Attributes
+    - sql: Contains the SQL Query text
+
+    ### Methods:
+    - ctes: returns a generator containing all the CTEs on the query
+    - selects: returns a generator containing all the select contents of the query
+    - windows: returns a generator containing all the window functions of the query
+    """
+
     def __init__(self, sql: str) -> None:
         self.sql = sql.lower()
 
     def ctes(self) -> Generator:
+        """
+        returns a generator containing all the CTEs on the query
+        """
         cte_regex = re.compile(
-            r"(?i)\b(\w+)\s+as\s+\((.*?)\)(?=\s*,|\s*select|\s*insert|\s*update|\s*delete|\s*with|\Z)",
+            r"""(?i)\b(\w+)\s+as\s+\((.*?)\)
+                (?=\s*,|\s*select|\s*insert|\s*update|\s*delete|\s*with|\Z)""",
             re.DOTALL | re.IGNORECASE,
         )
 
         matches = cte_regex.findall(self.sql)
 
-        for i, match in enumerate(matches, 1):
+        for _, match in enumerate(matches, 1):
             cte_name, cte_content = match
             yield (cte_name, CTE(cte_content))
 
     def parameters(self) -> Generator:
+        """returns a generator containing all the Parameters on the query.
+        Parameters must be between {{ }}"""
         regex = re.compile(r"(?<={{)\S*(?=}})")
-        parameters = regex.findall(self.sql)
-        for p in parameters:
-            yield p
+        yield from regex.findall(self.sql)
 
     def __non_greedy_regex(self, keyword_start: str, keyword_end: str) -> Generator:
-        regex = re.compile(fr"(?<={keyword_start}).*?(?={keyword_end})", re.DOTALL | re.IGNORECASE)
-        items = regex.findall(self.sql)
-        for i in items:
-            yield i
+        """"""
+        regex = re.compile(
+            rf"(?<={keyword_start}).*?(?={keyword_end})",
+            re.DOTALL | re.IGNORECASE | re.MULTILINE,
+        )
+        yield from regex.findall(self.sql)
 
     def selects(self) -> Generator:
-        return self.__non_greedy_regex("select","from")
-    
+        """returns a generator containing all the Select contents on the query"""
+        yield from self.__non_greedy_regex("select", "from")
+
+    def windows(self) -> Generator:
+        """returns a generator containing all the Window Functions on the query"""
+        yield from self.__non_greedy_regex("over", r"\)")
+
     def froms(self) -> Generator:
-        return self.__non_greedy_regex("select","from")
+        """Returns a generator containing all the from statements"""
+        yield from self.__non_greedy_regex("from", "where")
 
     def format(self, **kwargs) -> str:
+        """
+        Allows dynamic variables on SQL Queries.
+        The parameters must be between keys i.e. {{parameter}}. Using the format function,
+        you can substitute the parameters with python variables.
+        An special type SQLString is used for tables, as we don't want to include "'" on
+        those strings.
+
+        sql = Query(sql="select * from {{my_table}} where country in {{country_list}}")
+        sql.format(my_table=SQLString("schema.table"), country_list = ['ES', 'GB'])
+        """
         for k, v in kwargs.items():
-            self.sql = self.sql.replace("{{" + k + "}}", assign_parameter(v))
+            self.sql = self.sql.replace("{{" + k + "}}", __assign_parameter(v))
         return self.sql
 
     def __str__(self):
@@ -53,31 +95,37 @@ class Query:
 
 
 class SQLString(str):
-    pass
+    """
+    String Class used to format queries without adding single quotes.
+    """
+
 
 
 class CTE(Query):
-    def __init__(self, sql: str) -> None:
-        super().__init__(sql)
+    """
+    CTE Query class
+    """
+
+
 
 
 @multimethod
-def assign_parameter(param: str) -> str:
+def __assign_parameter(param: str) -> str:
     return "'" + param + "'"
 
 
 @multimethod
-def assign_parameter(param: int) -> str:
+def __assign_parameter(param: int) -> str:
     return param
 
 
 @multimethod
-def assign_parameter(param: SQLString) -> str:
+def __assign_parameter(param: SQLString) -> str:
     return param
 
 
 @multimethod
-def assign_parameter(param: list[str]) -> str:
+def __assign_parameter(param: list[str]) -> str:
     string = "("
     for item in param:
         string += f"'{item}', "
@@ -85,7 +133,7 @@ def assign_parameter(param: list[str]) -> str:
 
 
 @multimethod
-def assign_parameter(param: list[int]) -> str:
+def __assign_parameter(param: list[int]) -> str:
     string = "("
     for item in param:
         string += f"{item}, "
@@ -93,5 +141,5 @@ def assign_parameter(param: list[int]) -> str:
 
 
 @multimethod
-def assign_parameter(param: datetime.datetime) -> str:
+def __assign_parameter(param: datetime.datetime) -> str:
     return "datetime '" + param.strftime("%Y-%m-%d %H:%M:%S") + "'"

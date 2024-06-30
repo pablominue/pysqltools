@@ -1,1 +1,1 @@
-from src.queries.queries import Query, SQLString, CTE
+from src import CTE, Query, SQLString

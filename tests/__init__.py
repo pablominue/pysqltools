@@ -1,1 +1,1 @@
-from .test_cte import test_ctes
+from .test_queries import test_ctes
