@@ -1,0 +1,19 @@
+repos:
+  - repo: local
+  hooks:
+    - id: format
+    name: format
+    entry: bash -c "poetry run make fmt"
+    language: system
+    types: []
+    verbose: true
+
+repos:
+  - repo: local
+  hooks:
+    - id: format
+    name: format
+    entry: bash -c "poetry run make verify"
+    language: system
+    types: []
+    verbose: true

@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "pysqltools"
+version = "0.1.0"
+description = "PySQLTools"
+authors = ["Pablo Minué"]
+license = "None"
+readme = "README.md"
+packages = [{include = "pysqltools"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pytest = "^8.2.0"
+pytest-cov = "*"
+pylint = "*"
+mypy = "*"
+black = "*"
+coverage  = "*"
+pillow = "^10.3.0"
+python-dotenv = "^1.0.1"
+pre-commit = "^3.7.1"
+sqlglot = "^25.3.0"
+pandas = "^2.2.2"
+rich = "^13.7.1"
+multipledispatch = "^1.0.0"
+multimethod = "^1.11.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
