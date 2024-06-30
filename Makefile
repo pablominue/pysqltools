@@ -5,6 +5,6 @@ test:
 	poetry run pytest .
 	poetry run coverage report
 style:
-	pylint ./src/*
+	pylint ./pysqltools/src/*
 
 verify: style test

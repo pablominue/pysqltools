@@ -38,16 +38,15 @@ class Query:
         returns a generator containing all the CTEs on the query
         """
         cte_regex = re.compile(
-            r"""(?i)\b(\w+)\s+as\s+\((.*?)\)
-                (?=\s*,|\s*select|\s*insert|\s*update|\s*delete|\s*with|\Z)""",
-            re.DOTALL | re.IGNORECASE,
+            r"""(?i)\b(\w+)\s+as\s+\((.*?)\)(?=\s*,|\s*select|\s*insert|\s*update|\s*delete|\s*with|\Z)""",
+            re.DOTALL | re.IGNORECASE | re.MULTILINE,
         )
 
         matches = cte_regex.findall(self.sql)
 
         for _, match in enumerate(matches, 1):
             cte_name, cte_content = match
-            yield (cte_name, CTE(cte_content))
+            yield (cte_name, cte_content)
 
     def parameters(self) -> Generator:
         """returns a generator containing all the Parameters on the query.
@@ -71,11 +70,15 @@ class Query:
         """returns a generator containing all the Window Functions on the query"""
         yield from self.__non_greedy_regex("over", r"\)")
 
-    def froms(self) -> Generator:
-        """Returns a generator containing all the from statements"""
-        yield from self.__non_greedy_regex("from", "where")
+    def tables(self) -> Generator:
+        """Returns a generator containing all the detected tables"""
+        regex = re.compile(
+            r"(?<=from|join).*?\s*\S*",
+            re.DOTALL | re.IGNORECASE | re.MULTILINE,
+        )
+        yield from regex.findall(self.sql)
 
-    def format(self, **kwargs) -> str:
+    def format(self, **kwargs) -> "Query":
         """
         Allows dynamic variables on SQL Queries.
         The parameters must be between keys i.e. {{parameter}}. Using the format function,
@@ -93,20 +96,18 @@ class Query:
     def __str__(self):
         return self.sql
 
+    def __dict__(self):
+        return {
+            "tables": list(self.tables()),
+            "ctes": list(self.ctes),
+            "parameters": list(self.parameters()),
+        }
+
 
 class SQLString(str):
     """
     String Class used to format queries without adding single quotes.
     """
-
-
-
-class CTE(Query):
-    """
-    CTE Query class
-    """
-
-
 
 
 @multimethod

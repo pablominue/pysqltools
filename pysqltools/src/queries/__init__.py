@@ -2,4 +2,4 @@
 Queries Package. Contains everything SQL-Text query related
 """
 
-from src.queries.queries import CTE, Query, SQLString
+from pysqltools.src.queries.queries import Query, SQLString
