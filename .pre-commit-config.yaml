@@ -1,18 +1,18 @@
 repos:
-  - repo: local
+#- repo: https://github.com/pablominue/pysqltools
+- repo: local
   hooks:
-    - id: format
+  - id: format
     name: format
     entry: bash -c "poetry run make fmt"
     language: system
     types: []
     verbose: true
 
-repos:
-  - repo: local
+- repo: local
   hooks:
-    - id: format
-    name: format
+  - id: verification
+    name: verification
     entry: bash -c "poetry run make verify"
     language: system
     types: []
