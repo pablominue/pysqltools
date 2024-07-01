@@ -116,15 +116,15 @@ class Query:
             rf"(?<={keyword_start}).*?(?={keyword_end})",
             re.DOTALL | re.IGNORECASE | re.MULTILINE,
         )
-        yield from regex.findall(self.sql)
+        yield from [i.strip() for i in regex.findall(self.sql)]
 
     def selects(self) -> Generator:
         """returns a generator containing all the Select contents on the query"""
-        yield from self.__non_greedy_regex("select", "from")
+        yield from [i.strip() for i in self.__non_greedy_regex("select", "from")]
 
     def windows(self) -> Generator:
         """returns a generator containing all the Window Functions on the query"""
-        yield from self.__non_greedy_regex("over", r"\)")
+        yield from [i.strip() for i in self.__non_greedy_regex("over", r"\)")]
 
     def tables(self) -> Generator:
         """Returns a generator containing all the detected tables"""
