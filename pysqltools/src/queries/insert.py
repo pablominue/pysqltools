@@ -1,8 +1,12 @@
+import time
 from datetime import date
 from typing import Any, Generator
 
 import pandas as pd
+import sqlparse
+from rich.progress import Progress
 
+from pysqltools.src.connection import SQLConnection
 from pysqltools.src.log import PabLog
 from pysqltools.src.queries.query import Query, assign_parameter
 
@@ -99,6 +103,30 @@ def generate_insert_query(
             table = f"{schema}.{table}"
         if not table:
             table = "{{table}}"
-        query = Query(f"INSERT INTO {table} VALUES {data_points_string}")
+        sql = f"INSERT INTO {table} VALUES {data_points_string}"
+        query = Query(sqlparse.format(sql))
         previous_iter += batch_size
         yield query
+
+
+def insert_pandas(
+    df: pd.DataFrame,
+    connection: SQLConnection,
+    table: str,
+    schema: str,
+    batch_size: int,
+):
+    if not table and schema:
+        raise TypeError("Table and Schema need to be provided")
+    with Progress() as progress:
+        iterations = len(df) / batch_size
+        task1 = progress.add_task("[red]Generating Queries...", total=1000)
+        task2 = progress.add_task("[green]Inserting Data...", total=iterations)
+        task3 = progress.add_task("[cyan]Finishing...", total=1000)
+        for i in range(1000):
+            progress.update(task1, advance=1.0)
+        for query in generate_insert_query(df, table, schema, batch_size):
+            connection.execute(query)
+            progress.update(task2, advance=1)
+        for i in range(1000):
+            progress.update(task3, advance=1.0)

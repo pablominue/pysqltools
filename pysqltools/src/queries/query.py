@@ -7,7 +7,10 @@ import datetime
 import re
 from typing import Generator, Union
 
+import sqlparse
 from multimethod import multimethod
+
+from pysqltools.src.queries.exceptions import QueryFormattingError
 
 
 class SQLString(str):
@@ -72,22 +75,32 @@ def assign_parameter(param: datetime.datetime) -> str:
 
 class Query:
     """
-    ## Class Query:
-    ### Description
-    The query class allows you to instantiate a SQL Query string to perform different methods,
-     collect ctes, statements, etc
+    ### Query Module
+    The query module provides a Query class to work with Query objects, which will allow to modify the
+    SQL Queries on an easy way with the class methods, and easily access the sql string with the sql
+    attribute of the objects.
 
-    ### Attributes
-    - sql: Contains the SQL Query text
+    To add parameters to the query, use {{parameter}} on the SQL String.
 
-    ### Methods:
-    - ctes: returns a generator containing all the CTEs on the query
-    - selects: returns a generator containing all the select contents of the query
-    - windows: returns a generator containing all the window functions of the query
+    The current methods are:
+
+    - ctes: Generator that yields the CTEs of the Query
+    - selects: Generator that yields the Select statements of the Query
+    - Windows: Generator that yields the Window Function contents of the query
+    - tables: Generator that yields the detected tables on the query
+    - parameters: Generator that yields all the parameters on the Query
+    - format: allows to assign values to the parameters in the query. Current supported types are str, int, float, datetime.datetime, list[int, float, str]
+    To call the format function, just call the parameters you have defined on your query. Example:
+    query:
+    `select * from {{table_param}} limit 20`
+
+    function call:
+    `query = Query(sql = sql).format(table_param = "MyTable")`
     """
 
     def __init__(self, sql: str) -> None:
         self.sql = sql.lower()
+        self.parsed = sqlparse.parse(sql)[0]
 
     def ctes(self) -> Generator:
         """
@@ -140,15 +153,19 @@ class Query:
         """
         Allows dynamic variables on SQL Queries.
         The parameters must be between keys i.e. {{parameter}}. Using the format function,
-        you can substitute the parameters with python variables.
+        you can substitute the parameters with python variables.\n
         An special type SQLString is used for tables, as we don't want to include "'" on
-        those strings.
+        those strings.\n
 
-        sql = Query(sql="select * from {{my_table}} where country in {{country_list}}")
-        sql.format(my_table=SQLString("schema.table"), country_list = ['ES', 'GB'])
+        `sql = Query(sql="select * from {{my_table}} where country in {{country_list}}")` \n
+        `sql.format(my_table=SQLString("schema.table"), country_list = ['ES', 'GB'])`
         """
-        for k, v in kwargs.items():
-            self.sql = self.sql.replace("{{" + k + "}}", assign_parameter(v))
+        try:
+            for k, v in kwargs.items():
+                self.sql = self.sql.replace("{{" + k + "}}", assign_parameter(v))
+            self.parsed = sqlparse.parse(sql=self.sql)[0]
+        except:
+            raise QueryFormattingError
 
         return self
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pysqltools"
-version = "0.1.8"
+version = "0.1.9"
 description = "PySQLTools"
 authors = ["Pablo Minué"]
 license = "None"
@@ -19,6 +19,16 @@ pillow = "^10.3.0"
 pre-commit = "^3.7.1"
 pandas = "^2.2.2"
 multimethod = "^1.11.2"
+sqlparse = "^0.5.0"
+psycopg2-binary = "^2.9.9"
+pymysql = "^1.1.1"
+mysql-connector-python = "^9.0.0"
+pyodbc = "^5.1.0"
+pymssql = "^2.3.0"
+cx-oracle = "^8.3.0"
+ibm-db = "^3.2.3"
+sqlalchemy = "^2.0.31"
+trino = "^0.328.0"
 
 
 [build-system]
@@ -26,6 +36,11 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pylint]
+extension-pkg-allow-list = [
+    'ibm_db',
+    'pyodbc',
+    'pymssql',
+]
 disable = [
     "C0114",  # Missing module docstring
     "C0116",  # Missing function or method docstring
