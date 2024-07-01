@@ -27,7 +27,9 @@ COLORS = [
 class PabLog:
     """Logger"""
 
-    def __init__(self, __format: str = "- %(message)s") -> None:
+    def __init__(
+        self, log_name: str = "Logger", __format: str = "- %(message)s"
+    ) -> None:
         """Logger Constructor"""
         self.avaliable_colors = []
         self.rich_handler = RichHandler(rich_tracebacks=True)
@@ -38,7 +40,7 @@ class PabLog:
 
         logging.basicConfig(format=__format, handlers=__handlers, level=logging.DEBUG)
 
-        self.log = logging.getLogger()
+        self.log = logging.getLogger(log_name)
         self.console = Console()
 
     def add_table(self, df: pd.DataFrame, title: str = "", max_rows: int = 10) -> None:
