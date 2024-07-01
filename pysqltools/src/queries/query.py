@@ -5,7 +5,7 @@ functions to interact with SQL text objects.
 
 import datetime
 import re
-from typing import Generator
+from typing import Generator, Union
 
 from multimethod import multimethod
 
@@ -25,7 +25,7 @@ def assign_parameter(param: str) -> str:
 
 
 @multimethod
-def assign_parameter(param: int) -> str:
+def assign_parameter(param: Union[int, float]) -> str:
     """
     assign parameter function
     """
@@ -52,7 +52,7 @@ def assign_parameter(param: list[str]) -> str:
 
 
 @multimethod
-def assign_parameter(param: list[int]) -> str:
+def assign_parameter(param: list[int, float]) -> str:
     """
     assign parameter function
     """
@@ -132,7 +132,9 @@ class Query:
             r"(?<=from|join).*?\s*\S*",
             re.DOTALL | re.IGNORECASE | re.MULTILINE,
         )
-        yield from regex.findall(self.sql)
+        results = regex.findall(self.sql)
+        results = [r.strip() for r in results]
+        yield from results
 
     def format(self, **kwargs) -> "Query":
         """

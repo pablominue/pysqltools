@@ -1,4 +1,5 @@
-from .src.queries.queries import Query, SQLString
+from .src.queries.insert import generate_insert_query
+from .src.queries.query import Query, SQLString
 
 
 def format_sql(sql: str, **kwargs) -> str:

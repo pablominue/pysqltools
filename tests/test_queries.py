@@ -1,4 +1,8 @@
-from pysqltools.src import Query
+from datetime import datetime
+
+import pandas as pd
+
+from pysqltools.src import Query, generate_insert_query
 
 
 def test_ctes():
@@ -45,3 +49,15 @@ def test_parameter():
 
     q.format(parameter_table="testschema.xyz")
     assert "testschema.xyz" in q.sql
+
+
+def test_insert_query():
+    df = pd.DataFrame(
+        {
+            "id": [1234, 2345, 3456, 4567],
+            "dt": [datetime.today() for i in range(4)],
+            "description": ["abcd", "cdef", "abcd", "cdef"],
+        }
+    )
+    queries = list(generate_insert_query(df=df, table="MyTable", batch_size=2))
+    assert len(queries) == 2
