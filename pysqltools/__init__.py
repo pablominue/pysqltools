@@ -1,4 +1,5 @@
-from .src.queries.insert import generate_insert_query
+from .src.connection import SQLConnection
+from .src.queries.insert import generate_insert_query, insert_pandas
 from .src.queries.query import Query, SQLString
 
 
