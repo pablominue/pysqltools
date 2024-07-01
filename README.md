@@ -44,3 +44,15 @@ Note: if no table is provided, a parameter {{table}} will be automatically creat
 
 
 The Generator yields Insert Queries (with `batch_size` rows) that can be iterated to execute.
+
+### Connection Module
+
+Allows to instantiate a SQL Connection to execute and fetch results (i.e., use the insert_pandas method from the insert module) Supported connections:
+
+- ibm_db
+- mysql
+- pymssql
+- pymysql
+- pyodbc
+- sqlalchemy
+- trino
