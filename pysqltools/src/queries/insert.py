@@ -91,7 +91,7 @@ def generate_insert_query(
     previous_iter = 0
     while previous_iter < len(df):
         percentage = round(100 * previous_iter / len(df), 2)
-        lg.log.info("Generating Insert Queries... %s %", percentage)
+        lg.log.info("Generating Insert Queries... %s", percentage)
         batch = df.iloc[previous_iter : previous_iter + batch_size]
         data_points = list(pandas_to_sql(batch))
         data_points_string = ",".join(data_points)
