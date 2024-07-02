@@ -1,4 +1,4 @@
-SQL Connection Module
+Connections Module
 ======================
 
 This module handles SQL database connections and query execution.

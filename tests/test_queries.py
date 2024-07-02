@@ -61,3 +61,20 @@ def test_insert_query():
     )
     queries = list(generate_insert_query(df=df, table="MyTable", batch_size=2))
     assert len(queries) == 2
+
+
+def test_cte_replacement():
+    with open("tests/queries/test_cte.sql", "r", encoding="utf-8") as f:
+        sql = f.read()
+    q = Query(sql=sql)
+    new_cte = """
+        test_2_cte as (
+        select 
+            new_cte_value,
+            count(*) over (partition by id order by dt desc) as id_total
+
+        from {{parameter_table}} c
+        )
+        """
+    q.replace_cte("test_2_cte", new_cte_content=new_cte)
+    assert new_cte in q.sql

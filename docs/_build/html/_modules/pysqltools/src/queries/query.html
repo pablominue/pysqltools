@@ -227,6 +227,35 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
+<div class="viewcode-block" id="Query.get_cte_by_identifier">
+<a class="viewcode-back" href="../../../../query.html#pysqltools.src.queries.query.Query.get_cte_by_identifier">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cte_by_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pass the identifier of one of the query CTEs and get the string containing the content of the CTE.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctes</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">c</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctes</span><span class="p">()}</span>
+        <span class="k">if</span> <span class="n">identifier</span> <span class="ow">in</span> <span class="n">ctes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ctes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="Query.replace_cte">
+<a class="viewcode-back" href="../../../../query.html#pysqltools.src.queries.query.Query.replace_cte">[docs]</a>
+    <span class="k">def</span> <span class="nf">replace_cte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">new_cte_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Query&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a CTE identifier, change its content with a new string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctes</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">c</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctes</span><span class="p">()}</span>
+        <span class="k">if</span> <span class="n">identifier</span> <span class="ow">in</span> <span class="n">ctes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_cte_by_identifier</span><span class="p">(</span><span class="n">identifier</span><span class="p">),</span> <span class="n">new_cte_content</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CTE with dentifier </span><span class="si">{</span><span class="n">identifier</span><span class="si">}</span><span class="s2"> not found in Query&quot;</span><span class="p">)</span></div>
+
+
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sql</span>
 
@@ -257,9 +286,9 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../query.html">SQL Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../insert.html">DataFrame Insert Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../connection.html">SQL Connection Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../query.html">Query Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../insert.html">Insert Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../connection.html">Connections Module</a></li>
 </ul>
 
 <div class="relations">
