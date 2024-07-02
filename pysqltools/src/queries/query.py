@@ -169,6 +169,29 @@ class Query:
 
         return self
 
+    def get_cte_by_identifier(self, identifier: str) -> Union[None, str]:
+        """
+        Pass the identifier of one of the query CTEs and get the string containing the content of the CTE.
+        """
+        ctes = {i: c for i, c in self.ctes()}
+        if identifier in ctes:
+            return ctes.get(identifier)
+        else:
+            return None
+
+    def replace_cte(self, identifier: str, new_cte_content: str) -> "Query":
+        """
+        Given a CTE identifier, change its content with a new string
+        """
+        ctes = {i: c for i, c in self.ctes()}
+        if identifier in ctes:
+            self.sql = self.sql.replace(
+                self.get_cte_by_identifier(identifier), new_cte_content
+            )
+            return self
+        else:
+            raise TypeError(f"CTE with dentifier {identifier} not found in Query")
+
     def __str__(self):
         return self.sql
 

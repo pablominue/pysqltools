@@ -1,4 +1,4 @@
-SQL Module
+Query Module
 ==========
 
 This module contains all the classes and functions to interact with SQL text objects.

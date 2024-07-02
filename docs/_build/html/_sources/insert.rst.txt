@@ -1,4 +1,4 @@
-DataFrame Insert Module
+Insert Module
 ========================
 
 This module contains functions to convert pandas DataFrames to SQL insert statements and execute them.

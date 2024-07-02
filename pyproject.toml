@@ -30,6 +30,7 @@ ibm-db = "^3.2.3"
 sqlalchemy = "^2.0.31"
 trino = "^0.328.0"
 sphinx = "^7.3.7"
+alabaster = "^0.7.16"
 
 
 [build-system]
