@@ -6,7 +6,8 @@ import mysql
 import mysql.connector
 import pymssql
 import pymysql
-import pyodbc
+
+# import pyodbc
 import sqlalchemy
 import trino
 
@@ -27,7 +28,7 @@ class SQLConnection:
             trino.dbapi.Connection,
             pymssql.Connection,
             sqlite3.Connection,
-            pyodbc.Connection,
+            # pyodbc.Connection,
             mysql.connector.connection.MySQLConnection,
             mysql.connector.connection_cext.CMySQLConnection,
             ibm_db.IBM_DBConnection,

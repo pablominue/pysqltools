@@ -1,11 +1,14 @@
 """Logger"""
 
 import logging
+from typing import Any, Callable
 
 import pandas as pd
+import rich
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.markdown import Markdown
+from rich.progress import Progress
 from rich.table import Table
 
 COLORS = [
@@ -70,3 +73,26 @@ class PabLog:
         md_ = f" # **{title}** "
         md = Markdown(md_)
         self.console.print(md)
+
+
+def progress_function(
+    task_name: str = "Task in progress...", color: str = "green", total: int = 100
+):
+    """
+    Decorator to use a rich progress bar
+    """
+
+    def decorator(fun: Callable[..., Any]):
+        """Decorator"""
+
+        def inner(*args, **kwargs):
+            """Wrapped"""
+            with Progress() as progress:
+                task = progress.add_task("f[{color}] {task_name}...", total=total)
+                result = fun(progress, task, *args, **kwargs)
+                progress.update(task, advance=total)
+            return result
+
+        return inner
+
+    return decorator
