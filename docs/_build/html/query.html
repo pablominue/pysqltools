@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>SQL Module &#8212; pysqltools 0.2.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=37f418d5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="DataFrame Insert Module" href="insert.html" />
+    <link rel="prev" title="Welcome to pysqltools’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="sql-module">
+<h1>SQL Module<a class="headerlink" href="#sql-module" title="Link to this heading">¶</a></h1>
+<p>This module contains all the classes and functions to interact with SQL text objects.</p>
+<p id="module-pysqltools.src.queries.query">This module contains all the classes and
+functions to interact with SQL text objects.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pysqltools.src.queries.query.Query">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pysqltools.src.queries.query.</span></span><span class="sig-name descname"><span class="pre">Query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sql</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysqltools.src.queries.query.Query" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>### Query Module
+The query module provides a Query class to work with Query objects, which will allow to modify the
+SQL Queries on an easy way with the class methods, and easily access the sql string with the sql
+attribute of the objects.</p>
+<p>To add parameters to the query, use {{parameter}} on the SQL String.</p>
+<p>The current methods are:</p>
+<ul class="simple">
+<li><p>ctes: Generator that yields the CTEs of the Query</p></li>
+<li><p>selects: Generator that yields the Select statements of the Query</p></li>
+<li><p>Windows: Generator that yields the Window Function contents of the query</p></li>
+<li><p>tables: Generator that yields the detected tables on the query</p></li>
+<li><p>parameters: Generator that yields all the parameters on the Query</p></li>
+<li><p>format: allows to assign values to the parameters in the query. Current supported types are str, int, float, datetime.datetime, list[int, float, str]</p></li>
+</ul>
+<p>To call the format function, just call the parameters you have defined on your query. Example:
+query:
+<cite>select * from {{table_param}} limit 20</cite></p>
+<p>function call:
+<cite>query = Query(sql = sql).format(table_param = “MyTable”)</cite></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pysqltools.src.queries.query.Query.ctes">
+<span class="sig-name descname"><span class="pre">ctes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.ctes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysqltools.src.queries.query.Query.ctes" title="Link to this definition">¶</a></dt>
+<dd><p>returns a generator containing all the CTEs on the query</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pysqltools.src.queries.query.Query.format">
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#id1" title="pysqltools.src.queries.query.Query"><span class="pre">Query</span></a></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysqltools.src.queries.query.Query.format" title="Link to this definition">¶</a></dt>
+<dd><p>Allows dynamic variables on SQL Queries.
+The parameters must be between keys i.e. {{parameter}}. Using the format function,
+you can substitute the parameters with python variables.</p>
+<p>An special type SQLString is used for tables, as we don’t want to include “’” on
+those strings.</p>
+<p><cite>sql = Query(sql=”select * from {{my_table}} where country in {{country_list}}”)</cite></p>
+<p><cite>sql.format(my_table=SQLString(“schema.table”), country_list = [‘ES’, ‘GB’])</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pysqltools.src.queries.query.Query.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysqltools.src.queries.query.Query.parameters" title="Link to this definition">¶</a></dt>
+<dd><p>returns a generator containing all the Parameters on the query.
+Parameters must be between {{ }}</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pysqltools.src.queries.query.Query.selects">
+<span class="sig-name descname"><span class="pre">selects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.selects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysqltools.src.queries.query.Query.selects" title="Link to this definition">¶</a></dt>
+<dd><p>returns a generator containing all the Select contents on the query</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pysqltools.src.queries.query.Query.tables">
+<span class="sig-name descname"><span class="pre">tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysqltools.src.queries.query.Query.tables" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a generator containing all the detected tables</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pysqltools.src.queries.query.Query.windows">
+<span class="sig-name descname"><span class="pre">windows</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.windows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysqltools.src.queries.query.Query.windows" title="Link to this definition">¶</a></dt>
+<dd><p>returns a generator containing all the Window Functions on the query</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pysqltools.src.queries.query.SQLString">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pysqltools.src.queries.query.</span></span><span class="sig-name descname"><span class="pre">SQLString</span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#SQLString"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysqltools.src.queries.query.SQLString" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+<p>String Class used to format queries without adding single quotes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysqltools.src.queries.query.assign_parameter">
+<span class="sig-prename descclassname"><span class="pre">pysqltools.src.queries.query.</span></span><span class="sig-name descname"><span class="pre">assign_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#assign_parameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysqltools.src.queries.query.assign_parameter" title="Link to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+<p>assign_parameter(param: Union[int, float]) -&gt; str</p>
+<blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+<p>assign_parameter(param: pysqltools.src.queries.query.SQLString) -&gt; str</p>
+<blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+<p>assign_parameter(param: list[str]) -&gt; str</p>
+<blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+<p>assign_parameter(param: list[int, float]) -&gt; str</p>
+<blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+<p>assign_parameter(param: datetime.datetime) -&gt; str</p>
+<blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+</dd></dl>
+
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+</section>
+<section id="sqlstring">
+<h2>SQLString<a class="headerlink" href="#sqlstring" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pysqltools.src.queries.query.</span></span><span class="sig-name descname"><span class="pre">SQLString</span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#SQLString"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+<p>String Class used to format queries without adding single quotes.</p>
+</dd></dl>
+
+</section>
+<section id="query">
+<h2>Query<a class="headerlink" href="#query" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="id1">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pysqltools.src.queries.query.</span></span><span class="sig-name descname"><span class="pre">Query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sql</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>### Query Module
+The query module provides a Query class to work with Query objects, which will allow to modify the
+SQL Queries on an easy way with the class methods, and easily access the sql string with the sql
+attribute of the objects.</p>
+<p>To add parameters to the query, use {{parameter}} on the SQL String.</p>
+<p>The current methods are:</p>
+<ul class="simple">
+<li><p>ctes: Generator that yields the CTEs of the Query</p></li>
+<li><p>selects: Generator that yields the Select statements of the Query</p></li>
+<li><p>Windows: Generator that yields the Window Function contents of the query</p></li>
+<li><p>tables: Generator that yields the detected tables on the query</p></li>
+<li><p>parameters: Generator that yields all the parameters on the Query</p></li>
+<li><p>format: allows to assign values to the parameters in the query. Current supported types are str, int, float, datetime.datetime, list[int, float, str]</p></li>
+</ul>
+<p>To call the format function, just call the parameters you have defined on your query. Example:
+query:
+<cite>select * from {{table_param}} limit 20</cite></p>
+<p>function call:
+<cite>query = Query(sql = sql).format(table_param = “MyTable”)</cite></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">ctes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.ctes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Link to this definition">¶</a></dt>
+<dd><p>returns a generator containing all the CTEs on the query</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#id1" title="pysqltools.src.queries.query.Query"><span class="pre">Query</span></a></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Link to this definition">¶</a></dt>
+<dd><p>Allows dynamic variables on SQL Queries.
+The parameters must be between keys i.e. {{parameter}}. Using the format function,
+you can substitute the parameters with python variables.</p>
+<p>An special type SQLString is used for tables, as we don’t want to include “’” on
+those strings.</p>
+<p><cite>sql = Query(sql=”select * from {{my_table}} where country in {{country_list}}”)</cite></p>
+<p><cite>sql.format(my_table=SQLString(“schema.table”), country_list = [‘ES’, ‘GB’])</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Link to this definition">¶</a></dt>
+<dd><p>returns a generator containing all the Parameters on the query.
+Parameters must be between {{ }}</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">selects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.selects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Link to this definition">¶</a></dt>
+<dd><p>returns a generator containing all the Select contents on the query</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id6" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a generator containing all the detected tables</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">windows</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#Query.windows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Link to this definition">¶</a></dt>
+<dd><p>returns a generator containing all the Window Functions on the query</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+</section>
+<section id="assign-parameter">
+<h2>assign_parameter<a class="headerlink" href="#assign-parameter" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="id8">
+<span class="sig-prename descclassname"><span class="pre">pysqltools.src.queries.query.</span></span><span class="sig-name descname"><span class="pre">assign_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pysqltools/src/queries/query.html#assign_parameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id8" title="Link to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+<p>assign_parameter(param: Union[int, float]) -&gt; str</p>
+<blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+<p>assign_parameter(param: pysqltools.src.queries.query.SQLString) -&gt; str</p>
+<blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+<p>assign_parameter(param: list[str]) -&gt; str</p>
+<blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+<p>assign_parameter(param: list[int, float]) -&gt; str</p>
+<blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+<p>assign_parameter(param: datetime.datetime) -&gt; str</p>
+<blockquote>
+<div><p>assign parameter function</p>
+</div></blockquote>
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">pysqltools</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">SQL Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pysqltools.src.queries.query.Query"><code class="docutils literal notranslate"><span class="pre">Query</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pysqltools.src.queries.query.SQLString"><code class="docutils literal notranslate"><span class="pre">SQLString</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pysqltools.src.queries.query.assign_parameter"><code class="docutils literal notranslate"><span class="pre">assign_parameter()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sqlstring">SQLString</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#query">Query</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#assign-parameter">assign_parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="insert.html">DataFrame Insert Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connection.html">SQL Connection Module</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to pysqltools’s documentation!</a></li>
+      <li>Next: <a href="insert.html" title="next chapter">DataFrame Insert Module</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Pablo Minué.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/query.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
