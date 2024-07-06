@@ -10,7 +10,7 @@ from typing import Generator, Union
 import sqlparse
 from multimethod import multimethod
 
-from pysqltools.src.queries.exceptions import QueryFormattingError
+from pysqltools.src.SQL.exceptions import QueryFormattingError
 
 
 class SQLString(str):

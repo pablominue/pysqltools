@@ -13,7 +13,7 @@ import trino
 
 from pysqltools.src.connection.exceptions import ConnectionException
 from pysqltools.src.log import PabLog
-from pysqltools.src.queries.query import Query
+from pysqltools.src.SQL.query import Query
 
 lg = PabLog("Connections")
 
