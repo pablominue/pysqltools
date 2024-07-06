@@ -1,8 +1,10 @@
 from datetime import datetime
 
 import pandas as pd
+import sqlparse
 
 from pysqltools.src import Query, generate_insert_query
+from pysqltools.src.SQL.table import Table
 
 
 def test_ctes():
@@ -78,3 +80,26 @@ def test_cte_replacement():
         """
     q.replace_cte("test_2_cte", new_cte_content=new_cte)
     assert new_cte in q.sql
+
+
+def test_create_table_string():
+    expected = (
+        "CREATE TABLE myTable ( col1 int, col11 double, col2 bool, col3 varchar )"
+    )
+
+    with open("tests/queries/test_cte.sql", "r", encoding="utf-8") as f:
+        sql = f.read()
+    q = Query(sql=sql)
+
+    df = pd.DataFrame(
+        {
+            "col1": [1, 2, 3, 4, 5],
+            "col11": [float(i) for i in range(5)],
+            "col2": [True, True, False, True, False],
+            "col3": ["a", "b", "a", "a", "a"],
+        }
+    )
+    table = Table("myTable")
+    table_sql = table.create_from_df(df)
+
+    assert table_sql == expected

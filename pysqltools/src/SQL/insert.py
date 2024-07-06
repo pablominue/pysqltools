@@ -8,7 +8,7 @@ from rich.progress import Progress
 
 from pysqltools.src.connection import SQLConnection
 from pysqltools.src.log import PabLog
-from pysqltools.src.queries.query import Query, assign_parameter
+from pysqltools.src.SQL.query import Query, assign_parameter
 
 lg = PabLog("Insert")
 

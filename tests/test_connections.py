@@ -7,7 +7,7 @@ import mysql.connector.cursor
 import pandas as pd
 
 from pysqltools.src.connection.connection import SQLConnection
-from pysqltools.src.queries.insert import insert_pandas
+from pysqltools.src.SQL.insert import insert_pandas
 
 df = pd.DataFrame(
     {
