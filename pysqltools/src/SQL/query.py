@@ -5,12 +5,17 @@ functions to interact with SQL text objects.
 
 import datetime
 import re
-from typing import Generator, Union
+from typing import Any, Generator, Union
 
 import sqlparse
 from multimethod import multimethod
 
 from pysqltools.src.SQL.exceptions import QueryFormattingError
+
+
+class QueryException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 
 class SQLString(str):
@@ -79,6 +84,12 @@ class Query:
     The query module provides a Query class to work with Query objects, which will allow to modify the
     SQL Queries on an easy way with the class methods, and easily access the sql string with the sql
     attribute of the objects.
+    --------------------------
+    ### Parameters
+    - sql: property. The string containing the SQL Query
+    - parsed: sqlparse object from the SQL Query
+    - options: via kwargs. Current options:
+        - indent_query (bool) default True: Re-indent the query for output
 
     To add parameters to the query, use {{parameter}} on the SQL String.
 
@@ -98,13 +109,40 @@ class Query:
     `query = Query(sql = sql).format(table_param = "MyTable")`
     """
 
-    def __init__(self, sql: str) -> None:
-        self.sql = sql.lower()
+    def __init__(self, sql: str, *args, **kwargs) -> None:
+        self._sql = sql.lower()
         self.parsed = sqlparse.parse(sql)[0]
+        self.options = kwargs
 
+    @property
+    def sql(self):
+        """
+        Contains the string with the SQL Statement. If the flag `indent_query` has been set on the
+        constructor, the sql will be returned with automatic indentation.
+        """
+        if self.options.get("indent_query", True):
+            self._sql = str(
+                sqlparse.format(
+                    self._sql,
+                    keyword_case="lower",
+                    id_case="lower",
+                    indent_columns=True,
+                    reindent=True,
+                )
+            )
+            return self._sql
+        else:
+            return self._sql
+
+    @sql.setter
+    def sql(self, sql: str):
+        self._sql = sql.lower()
+
+    @property
     def ctes(self) -> Generator:
         """
-        returns a generator containing all the CTEs on the query
+        returns a generator containing all the CTEs on the query. The generator returns
+        the CTE identifier as first argument and the CTE Content as second argument.
         """
         cte_regex = re.compile(
             r"""(?i)\b(\w+)\s+as\s+\((.*?)\)(?=\s*,|\s*select|\s*insert|\s*update|\s*delete|\s*with|\Z)""",
@@ -112,16 +150,65 @@ class Query:
         )
 
         matches = cte_regex.findall(self.sql)
-
+        self._ctes = []
         for _, match in enumerate(matches, 1):
             cte_name, cte_content = match
-            yield (cte_name, cte_content)
+            self._ctes.append((cte_name, cte_content))
 
+        yield from self._ctes
+
+    @ctes.setter
+    def ctes(self) -> None:
+        raise QueryException("ctes is read-only")
+
+    @property
     def parameters(self) -> Generator:
         """returns a generator containing all the Parameters on the query.
         Parameters must be between {{ }}"""
         regex = re.compile(r"(?<={{)\S*(?=}})")
-        yield from regex.findall(self.sql)
+        self._parameters = regex.findall(self.sql)
+        yield from self._parameters
+
+    @parameters.setter
+    def parameters(self) -> None:
+        raise QueryException("parameters is read-only")
+
+    @property
+    def tables(self) -> Generator:
+        """Returns a generator containing all the detected tables. CTEs identifiers excluded"""
+        regex = re.compile(
+            r"(?<=from|join).*?\s*\S*",
+            re.DOTALL | re.IGNORECASE | re.MULTILINE,
+        )
+        self._tables = [r.strip() for r in regex.findall(self.sql)]
+        self._tables = [
+            t for t in self._tables if t not in [c[0] for c in list(self.ctes)]
+        ]
+        yield from self._tables
+
+    @tables.setter
+    def tables(self, *args: Any) -> None:
+        raise QueryException("tables is read-only")
+
+    @property
+    def selects(self) -> Generator:
+        """returns a generator containing all the Select contents on the query"""
+        self._selects = [i.strip() for i in self.__non_greedy_regex("select", "from")]
+        yield from self._selects
+
+    @selects.setter
+    def selects(self) -> None:
+        raise QueryException("selects is read-only")
+
+    @property
+    def windows(self) -> Generator:
+        """returns a generator containing all the Window Functions on the query"""
+        self._windows = [i.strip() for i in self.__non_greedy_regex("over", r"\)")]
+        yield from self._windows
+
+    @windows.setter
+    def windows(self) -> None:
+        raise QueryException("windows is read-only")
 
     def __non_greedy_regex(self, keyword_start: str, keyword_end: str) -> Generator:
         """"""
@@ -131,23 +218,21 @@ class Query:
         )
         yield from [i.strip() for i in regex.findall(self.sql)]
 
-    def selects(self) -> Generator:
-        """returns a generator containing all the Select contents on the query"""
-        yield from [i.strip() for i in self.__non_greedy_regex("select", "from")]
+    def iter_query_lines(self) -> Generator:
+        """
+        Iterate the SQL Query line by line.
+        """
+        yield from self.sql.split("\n")
 
-    def windows(self) -> Generator:
-        """returns a generator containing all the Window Functions on the query"""
-        yield from [i.strip() for i in self.__non_greedy_regex("over", r"\)")]
+    def get_ctes_dict(self) -> Generator:
+        """
+        Get the CTEs on a dictionary
 
-    def tables(self) -> Generator:
-        """Returns a generator containing all the detected tables"""
-        regex = re.compile(
-            r"(?<=from|join).*?\s*\S*",
-            re.DOTALL | re.IGNORECASE | re.MULTILINE,
-        )
-        results = regex.findall(self.sql)
-        results = [r.strip() for r in results]
-        yield from results
+        """
+        cte_dict = {}
+        for k, v in self.ctes:
+            cte_dict.update({k: v})
+        return cte_dict
 
     def format(self, **kwargs) -> "Query":
         """
@@ -173,9 +258,8 @@ class Query:
         """
         Pass the identifier of one of the query CTEs and get the string containing the content of the CTE.
         """
-        ctes = {i: c for i, c in self.ctes()}
-        if identifier in ctes:
-            return ctes.get(identifier)
+        if identifier in self.get_ctes_dict():
+            return self.get_ctes_dict().get(identifier)
         else:
             return None
 
@@ -183,8 +267,7 @@ class Query:
         """
         Given a CTE identifier, change its content with a new string
         """
-        ctes = {i: c for i, c in self.ctes()}
-        if identifier in ctes:
+        if identifier in self.get_ctes_dict():
             self.sql = self.sql.replace(
                 self.get_cte_by_identifier(identifier), new_cte_content
             )
@@ -197,7 +280,7 @@ class Query:
 
     def __dict__(self):
         return {
-            "tables": list(self.tables()),
-            "ctes": list(self.ctes),
-            "parameters": list(self.parameters()),
+            "tables": list(self.tables),
+            "ctes": self.get_ctes_dict(),
+            "parameters": list(self.parameters),
         }
