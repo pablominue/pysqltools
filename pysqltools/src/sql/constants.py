@@ -10,4 +10,5 @@ TYPE_MAPPING = {
     "float64": "double",
     "bool": "bool",
     "datetime64": "timestamp",
+    "datetime64[ns]": "timestamp",
 }

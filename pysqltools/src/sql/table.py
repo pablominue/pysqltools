@@ -7,6 +7,8 @@ from typing import Any, Union
 import pandas as pd
 import sqlparse
 
+from pysqltools.src.sql.query import Query
+
 from .constants import TYPE_MAPPING
 from .insert import insert_pandas
 
@@ -22,7 +24,11 @@ class Table:
             self.table = f"{schema}.{table}"
 
     def create_from_df(
-        self, df: pd.DataFrame, insert_data: bool = False, **insert_kwargs: Any
+        self,
+        df: pd.DataFrame,
+        execute: bool = False,
+        insert_data: bool = False,
+        **insert_kwargs: Any,
     ) -> str:
         """
         Get the SQL statement to create a SQL table based on a Pandas DataFrame. If the insert_data argument is set to True,
@@ -41,12 +47,14 @@ class Table:
                 ),
             )
         )
-        sql = f"CREATE TABLE {self.table} ( "
+        sql = f"CREATE TABLE IF NOT EXISTS {self.table} ( "
         for k, v in columns.items():
             sql += f"{k} {v}, "
         sql = sql[:-2] + " )"
         if not insert_data:
             return sqlparse.format(sql, encoding="utf-8")
+        if execute:
+            insert_kwargs["connection"].execute(Query(sql))
         if "batch_size" in insert_kwargs:
             batch_size = insert_kwargs["batch_size"]
         else:
@@ -57,8 +65,10 @@ class Table:
                 connection=insert_kwargs["connection"],
                 table=self.table,
                 batch_size=batch_size,
+                dialect=insert_kwargs["dialect"],
             )
-        except TypeError:
+        except TypeError as e:
             raise TypeError(
-                "Please include the insert arguments into the create_table_from_df method"
+                "Please include the insert arguments into the create_table_from_df method",
+                e,
             )
