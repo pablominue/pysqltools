@@ -83,9 +83,7 @@ def test_cte_replacement():
 
 
 def test_create_table_string():
-    expected = (
-        "CREATE TABLE myTable ( col1 int, col11 double, col2 bool, col3 varchar )"
-    )
+    expected = "CREATE TABLE IF NOT EXISTS myTable ( col1 int, col11 double, col2 bool, col3 varchar )"
 
     with open("tests/queries/test_cte.sql", "r", encoding="utf-8") as f:
         sql = f.read()

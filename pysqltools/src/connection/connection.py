@@ -60,8 +60,8 @@ class SQLConnection:
                     self.conn.commit()
                 except:
                     lg.log.warning("Connection can not be commited")
-        except:
-            raise ConnectionException
+        except Exception as e:
+            raise ConnectionException(e)
 
     def fetch(self, sql: Query, dataframe: bool = False):
         """
@@ -84,7 +84,11 @@ class SQLConnection:
             else:
                 cursor = self.conn.cursor()
                 cursor.execute(sql.sql)
+                if hasattr(cursor, "description"):
+                    columns = [i[0] for i in cursor.description]
                 if hasattr(cursor, "fetchall"):
+                    if dataframe:
+                        return pd.DataFrame(cursor.fetchall(), columns=columns)
                     return cursor.fetchall()
                 else:
                     rows = []
