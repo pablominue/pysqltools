@@ -4,7 +4,6 @@ import logging
 from typing import Any, Callable
 
 import pandas as pd
-import rich
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.markdown import Markdown
@@ -44,6 +43,7 @@ class PabLog:
         logging.basicConfig(format=__format, handlers=__handlers, level=logging.DEBUG)
 
         self.log = logging.getLogger(log_name)
+        self.log.setLevel(logging.INFO)
         self.console = Console()
 
     def add_table(self, df: pd.DataFrame, title: str = "", max_rows: int = 10) -> None:
@@ -88,8 +88,9 @@ def progress_function(
         def inner(*args, **kwargs):
             """Wrapped"""
             with Progress() as progress:
-                task = progress.add_task("f[{color}] {task_name}...", total=total)
-                result = fun(progress, task, *args, **kwargs)
+                task = progress.add_task(f"[{color}] {task_name}...", total=total)
+                prog = {"progress": progress, "task": task}
+                result = fun(*args, **kwargs, **prog)
                 progress.update(task, advance=total)
             return result
 

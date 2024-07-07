@@ -1,1 +1,1 @@
-from .log import PabLog
+from .log import PabLog, progress_function
