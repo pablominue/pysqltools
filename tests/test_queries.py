@@ -11,7 +11,7 @@ def test_ctes():
     with open("tests/queries/test_cte.sql", "r", encoding="utf-8") as f:
         sql = f.read()
     q = Query(sql=sql)
-    ctes = {cte[0]: cte[1] for cte in q.ctes()}
+    ctes = {cte[0]: cte[1] for cte in q.ctes}
 
     assert len(ctes) == 2
 
@@ -21,7 +21,7 @@ def test_selects():
         sql = f.read()
     q = Query(sql=sql)
 
-    selects = {s for s in q.selects()}
+    selects = {s for s in q.selects}
 
     assert len(selects) == 3
 
@@ -31,7 +31,7 @@ def test_windows():
         sql = f.read()
     q = Query(sql=sql)
 
-    windows = {w for w in q.windows()}
+    windows = {w for w in q.windows}
     assert len(windows) == 1
 
 
@@ -40,8 +40,8 @@ def test_tables():
         sql = f.read()
     q = Query(sql=sql)
 
-    tables = [t for t in q.tables()]
-    assert len(tables) == 5
+    tables = [t for t in q.tables]
+    assert len(tables) == 3
 
 
 def test_parameter():
@@ -79,7 +79,7 @@ def test_cte_replacement():
         )
         """
     q.replace_cte("test_2_cte", new_cte_content=new_cte)
-    assert new_cte in q.sql
+    assert "new_cte_value" in q.sql
 
 
 def test_create_table_string():

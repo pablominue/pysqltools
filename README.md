@@ -53,6 +53,10 @@ Allows to instantiate a SQL Connection to execute and fetch results (i.e., use t
 - mysql
 - pymssql
 - pymysql
-- pyodbc
 - sqlalchemy
 - trino
+
+### Table Module
+
+Allows to create tables on a SQL Database given a pandas DataFrame. Also contains the option to insert the data of the dataframe in the 
+new table by calling the insert module
