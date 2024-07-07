@@ -4,7 +4,7 @@ import pandas as pd
 import sqlparse
 
 from pysqltools.src import Query, generate_insert_query
-from pysqltools.src.SQL.table import Table
+from pysqltools.src.sql.table import Table
 
 
 def test_ctes():

@@ -4,16 +4,26 @@ functions to interact with SQL text objects.
 """
 
 import datetime
+import os
 import re
 from typing import Any, Generator, Union
 
+import rich
+import rich.progress
 import sqlparse
 from multimethod import multimethod
 
-from pysqltools.src.SQL.exceptions import QueryFormattingError
+from pysqltools.src.log import PabLog, progress_function
+from pysqltools.src.sql.exceptions import QueryFormattingError
+
+lg = PabLog("Query")
 
 
 class QueryException(Exception):
+    """
+    Exception during Query processing.
+    """
+
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
@@ -109,10 +119,15 @@ class Query:
     `query = Query(sql = sql).format(table_param = "MyTable")`
     """
 
-    def __init__(self, sql: str, *args, **kwargs) -> None:
+    def __init__(self, sql: str, **kwargs) -> None:
         self._sql = sql.lower()
         self.parsed = sqlparse.parse(sql)[0]
         self.options = kwargs
+        self._parameters = None
+        self._tables = None
+        self._selects = None
+        self._windows = None
+        self._ctes = None
 
     @property
     def sql(self):
@@ -130,9 +145,7 @@ class Query:
                     reindent=True,
                 )
             )
-            return self._sql
-        else:
-            return self._sql
+        return self._sql
 
     @sql.setter
     def sql(self, sql: str):
@@ -249,8 +262,8 @@ class Query:
             for k, v in kwargs.items():
                 self.sql = self.sql.replace("{{" + k + "}}", assign_parameter(v))
             self.parsed = sqlparse.parse(sql=self.sql)[0]
-        except:
-            raise QueryFormattingError
+        except Exception as e:
+            raise QueryFormattingError(e)
 
         return self
 
@@ -284,3 +297,30 @@ class Query:
             "ctes": self.get_ctes_dict(),
             "parameters": list(self.parameters),
         }
+
+
+@progress_function("searching queries...", color="green")
+def get_queries_from_path(path: str = None, *args, **kwargs) -> list[Query]:
+    # lg.add_md("## Scanning Directory for SQL Queries")
+    queries = {}
+    for dirpath, dirname, filename in os.walk(path):
+        lg.log.info(f"Searching {dirpath}...")
+        kwargs["progress"].advance(kwargs["task"], 1)
+        i = 2
+        for f in filename:
+            if f.__contains__(".sql"):
+                lg.log.info(f"Added item '{f}'")
+                if f in queries:
+                    name = f.replace(".sql", "") + f"_{i}"
+                    i += 1
+                else:
+                    name = f.replace(".sql", "")
+                queries.update(
+                    {
+                        name: Query(
+                            open(os.path.join(dirpath, f), "r", encoding="utf-8").read()
+                        )
+                    }
+                )
+
+    return queries

@@ -1,4 +1,3 @@
-import time
 from datetime import date
 from typing import Any, Generator
 
@@ -8,7 +7,7 @@ from rich.progress import Progress
 
 from pysqltools.src.connection import SQLConnection
 from pysqltools.src.log import PabLog
-from pysqltools.src.SQL.query import Query, assign_parameter
+from pysqltools.src.sql.query import Query
 
 lg = PabLog("Insert")
 
@@ -123,7 +122,7 @@ def insert_pandas(
         task1 = progress.add_task("[red]Generating Queries...", total=1000)
         task2 = progress.add_task("[green]Inserting Data...", total=iterations)
         task3 = progress.add_task("[cyan]Finishing...", total=1000)
-        for i in range(1000):
+        for _ in range(1000):
             progress.update(task1, advance=1.0)
         for query in generate_insert_query(df, table, schema, batch_size):
             connection.execute(query)
