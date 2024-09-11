@@ -125,6 +125,8 @@ class Query:
             if kwargs.get('lower_query') == True:
                 self.lower_query = True
                 self._sql = sql.lower()
+        else:
+            self._sql = sql
         self.parsed = sqlparse.parse(sql)[0]
         self.options = kwargs
         self._parameters = None
