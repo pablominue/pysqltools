@@ -120,7 +120,11 @@ class Query:
     """
 
     def __init__(self, sql: str, **kwargs) -> None:
-        self._sql = sql.lower()
+        self.lower_query = False
+        if 'lower_query' in kwargs.keys():
+            if kwargs.get('lower_query') == True:
+                self.lower_query = True
+                self._sql = sql.lower()
         self.parsed = sqlparse.parse(sql)[0]
         self.options = kwargs
         self._parameters = None
@@ -149,7 +153,8 @@ class Query:
 
     @sql.setter
     def sql(self, sql: str):
-        self._sql = sql.lower()
+        if self.lower_query:
+            self._sql = sql.lower()
 
     @property
     def ctes(self) -> Generator:
@@ -178,7 +183,8 @@ class Query:
     def parameters(self) -> Generator:
         """returns a generator containing all the Parameters on the query.
         Parameters must be between {{ }}"""
-        regex = re.compile(r"(?<={{)\S*(?=}})")
+        regex = re.compile(r"(?<={{)\S*(?=}})",
+            re.DOTALL | re.IGNORECASE | re.MULTILINE,)
         self._parameters = regex.findall(self.sql)
         yield from self._parameters
 
