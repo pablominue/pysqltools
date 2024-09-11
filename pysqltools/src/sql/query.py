@@ -155,6 +155,8 @@ class Query:
     def sql(self, sql: str):
         if self.lower_query:
             self._sql = sql.lower()
+        else:
+            self._sql = sql
 
     @property
     def ctes(self) -> Generator:
