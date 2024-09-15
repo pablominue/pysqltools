@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "pysqltools"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 pytest = "^8.2.0"
 pytest-cov = "*"
 pylint = "*"
