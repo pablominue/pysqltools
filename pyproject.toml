@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pysqltools"
-version = "0.2.9"
+version = "0.3.0"
 description = "PySQLTools"
 authors = ["Pablo Minué"]
 license = "None"
@@ -26,7 +26,6 @@ mysql-connector-python = "^9.0.0"
 pyodbc = "^5.1.0"
 pymssql = "^2.3.0"
 cx-oracle = "^8.3.0"
-ibm-db = "^3.2.3"
 sqlalchemy = "^2.0.31"
 trino = "^0.328.0"
 sphinx = "^7.3.7"
