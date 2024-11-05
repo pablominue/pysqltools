@@ -1,7 +1,6 @@
 import sqlite3
 from typing import Any, Union
 
-import ibm_db
 import mysql
 import mysql.connector
 import pandas as pd
@@ -47,8 +46,6 @@ class SQLConnection:
         Execute a SQL Statement that returns no value
         """
         try:
-            if isinstance(self.conn, ibm_db.IBM_DBConnection):
-                ibm_db.exec_immediate(self.conn, sql.sql)
             if isinstance(self.conn, sqlalchemy.Connection):
                 self.conn.execute(sql.sql)
                 self.conn.commit()
@@ -68,14 +65,6 @@ class SQLConnection:
         Execute a SQL Query object and get the
         """
         try:
-            if isinstance(self.conn, ibm_db.IBM_DBConnection):
-                stmt = ibm_db.exec_immediate(self.conn, sql.sql)
-                rows = []
-                row = ibm_db.fetch_assoc(stmt)
-                while row:
-                    rows.append(row)
-                    row = ibm_db.fetch_assoc(stmt)
-                return rows
 
             if isinstance(self.conn, sqlalchemy.engine.base.Connection):
                 result = self.conn.execute(sql.sql)

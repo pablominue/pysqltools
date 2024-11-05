@@ -1,6 +1,5 @@
 from datetime import date
 from typing import Any, Generator
-
 import pandas as pd
 import sqlparse
 from rich.progress import Progress
