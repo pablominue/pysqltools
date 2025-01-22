@@ -1,10 +1,10 @@
 from datetime import date
-from typing import Any, Generator
+from typing import Any, Generator, Callable
 import pandas as pd
 import sqlparse
 from rich.progress import Progress
 
-from pysqltools.src.connection import SQLConnection
+
 from pysqltools.src.log import PabLog
 from pysqltools.src.sql.query import Query
 
@@ -192,6 +192,17 @@ def generate_insert_query(
     batch_size: int = 5000,
     dialect: str = "trino",
 ) -> Generator[Query, None, None]:
+    """
+    Generates a query to insert the data into the database
+    
+    Parameters:
+    ------------------------------------------------------------------------------
+    - df (pd.DataFrame): The DataFrame to be inserted
+    - table (str, optional): The name of the table to insert into (default is None)
+    - schema (str, optional): The schema for the table (default is None)
+    - batch_size (int, optional): The number of rows to insert in each batch (default is 5000)
+    - dialect (str, optional): The SQL dialect (default is "trino")
+    """
     if df.empty:
         raise TypeError("DataFrame can not be empty")
     previous_iter = 0
@@ -213,12 +224,24 @@ def generate_insert_query(
 
 def insert_pandas(
     df: pd.DataFrame,
-    connection: SQLConnection,
     batch_size: int,
     table: str,
+    execute_function: Callable[..., Any],
     schema: str = "",
     dialect: str = "trino",
 ):
+    """
+    Insert a pandas DataFrame into a specified table using a generator of queries
+    
+    Parameters:
+    ------------------------------------------------------------------------------
+    - df (pd.DataFrame): The DataFrame to be inserted
+    - batch_size (int): The number of rows to insert in each batch
+    - table (str): The name of the table to insert into
+    - execute_function (Callable[..., Any]): The function to execute the query
+    - schema (str, optional): The schema for the table (default is "")
+    - dialect (str, optional): The SQL dialect (default is "trino")
+    """
     if not table and schema:
         raise TypeError("Table and Schema need to be provided")
     with Progress() as progress:
@@ -232,11 +255,11 @@ def insert_pandas(
             df, table, schema, batch_size, dialect=dialect
         ):
             try:
-                connection.execute(query)
+                execute_function(query)
             except Exception as e:
                 lg.log.warning("Query Execution Failed")
                 lg.log.error(e)
-                print(query.sql)
+                lg.log(query.sql)
             progress.update(task2, advance=1)
         for i in range(1000):
             progress.update(task3, advance=1.0)
