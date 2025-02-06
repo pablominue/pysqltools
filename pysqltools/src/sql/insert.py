@@ -8,6 +8,8 @@ from rich.progress import Progress
 from pysqltools.src.log import PabLog
 from pysqltools.src.sql.query import Query
 
+from multiprocessing import Process, Queue
+
 lg = PabLog("Insert")
 
 
@@ -229,7 +231,7 @@ def insert_pandas(
     execute_function: Callable[..., Any],
     schema: str = "",
     dialect: str = "trino",
-):
+) -> None:
     """
     Insert a pandas DataFrame into a specified table using a generator of queries
 
@@ -263,3 +265,40 @@ def insert_pandas(
             progress.update(task2, advance=1)
         for i in range(1000):
             progress.update(task3, advance=1.0)
+
+def insert_pandas_threads(
+    df: pd.DataFrame,
+    batch_size: int,
+    table: str,
+    execute_function: Callable[..., Any],
+    schema: str = "",
+    dialect: str = "trino",
+    threads: int = 2
+) -> None:
+    """
+    Insert a pandas DataFrame into a specified table using a generator of queries,
+    and using multiprocessing to accelerate the process.
+
+    Parameters:
+    ------------------------------------------------------------------------------
+    - df (pd.DataFrame): The DataFrame to be inserted
+    - batch_size (int): The number of rows to insert in each batch
+    - table (str): The name of the table to insert into
+    - execute_function (Callable[..., Any]): The function to execute the query
+    - schema (str, optional): The schema for the table (default is "")
+    - dialect (str, optional): The SQL dialect (default is "trino")
+    """
+    def process_queue(q: Queue) -> None:
+        item = q.get()
+        execute_function(item)
+
+    queries = list(
+        generate_insert_query(
+            df, table, schema, batch_size, dialect=dialect
+        )
+    )
+
+    queue = Queue()
+    process = Process(target=process_queue, args=(q,))
+    process.start()
+    process.join()
