@@ -1,9 +1,9 @@
 from datetime import date
-from typing import Any, Generator, Callable
+from typing import Any, Callable, Generator
+
 import pandas as pd
 import sqlparse
 from rich.progress import Progress
-
 
 from pysqltools.src.log import PabLog
 from pysqltools.src.sql.query import Query
@@ -194,7 +194,7 @@ def generate_insert_query(
 ) -> Generator[Query, None, None]:
     """
     Generates a query to insert the data into the database
-    
+
     Parameters:
     ------------------------------------------------------------------------------
     - df (pd.DataFrame): The DataFrame to be inserted
@@ -232,7 +232,7 @@ def insert_pandas(
 ):
     """
     Insert a pandas DataFrame into a specified table using a generator of queries
-    
+
     Parameters:
     ------------------------------------------------------------------------------
     - df (pd.DataFrame): The DataFrame to be inserted
