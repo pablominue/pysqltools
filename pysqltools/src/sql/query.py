@@ -121,8 +121,8 @@ class Query:
 
     def __init__(self, sql: str, **kwargs) -> None:
         self.lower_query = False
-        if 'lower_query' in kwargs.keys():
-            if kwargs.get('lower_query') == True:
+        if "lower_query" in kwargs.keys():
+            if kwargs.get("lower_query") == True:
                 self.lower_query = True
                 self._sql = sql.lower()
         else:
@@ -187,8 +187,10 @@ class Query:
     def parameters(self) -> Generator:
         """returns a generator containing all the Parameters on the query.
         Parameters must be between {{ }}"""
-        regex = re.compile(r"(?<={{)\S*(?=}})",
-            re.DOTALL | re.IGNORECASE | re.MULTILINE,)
+        regex = re.compile(
+            r"(?<={{)\S*(?=}})",
+            re.DOTALL | re.IGNORECASE | re.MULTILINE,
+        )
         self._parameters = regex.findall(self.sql)
         yield from self._parameters
 
