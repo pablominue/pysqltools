@@ -50,3 +50,8 @@ The Generator yields Insert Queries (with `batch_size` rows) that can be iterate
 
 Allows to create tables on a SQL Database given a pandas DataFrame. Also contains the option to insert the data of the dataframe in the 
 new table by calling the insert module
+
+### Delete Module
+
+Contains the function `delete_from_dataframe`. This function allows to generate a Query object that will contain a SQL to delete all the rows in the 
+target table that meet the conditions on the dataframe rows
