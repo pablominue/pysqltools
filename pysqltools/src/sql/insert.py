@@ -299,6 +299,6 @@ def insert_pandas_threads(
     )
 
     queue = Queue()
-    process = Process(target=process_queue, args=(q,))
+    process = Process(target=process_queue, args=(queue,))
     process.start()
     process.join()
