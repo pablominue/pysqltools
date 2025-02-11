@@ -1,11 +1,14 @@
-from pysqltools.src.sql.query import Query
-import pandas as pd
-from pysqltools.src.log import PabLog
 import typing as t
+
+import pandas as pd
+
+from pysqltools.src.log import PabLog
+from pysqltools.src.sql.query import Query
 
 lg = PabLog(__name__)
 
-def __get_data_points(df:pd.DataFrame) -> str:
+
+def __get_data_points(df: pd.DataFrame) -> str:
     """
     Private function to get the dataframe fields as a SQL string
     """
@@ -13,10 +16,12 @@ def __get_data_points(df:pd.DataFrame) -> str:
     data_points_str = ""
     for _, row in df.iterrows():
         conditions = [
-            Query("{{ninja_column}} = {{ninja_value}}").format(
+            Query("{{ninja_column}} = {{ninja_value}}")
+            .format(
                 ninja_column=col,
                 ninja_value=row[col],
-            ).sql
+            )
+            .sql
             for col in cols
         ]
         statement = "OR ( " + " AND ".join(conditions) + ") "
@@ -24,12 +29,12 @@ def __get_data_points(df:pd.DataFrame) -> str:
     data_points_str = data_points_str[2:]
     return data_points_str
 
+
 def delete_from_dataframe(
     df: pd.DataFrame,
     table: str,
     batch_size: t.Optional[int] = None,
-    subset: t.Optional[list[str]] = None
-
+    subset: t.Optional[list[str]] = None,
 ) -> t.Union[Query, t.Generator[Query, t.Any, t.Any]]:
     """
     ## delete_from_dataframe
@@ -49,7 +54,7 @@ def delete_from_dataframe(
     If the batch_size is not specified, the function will return a Query object with an SQL Ready to delete all the rows
     on the table that currently are on the dataframe
 
-    If the batch_size is specified, the function will return a Generator that will yield Query objects containing the deletion of 
+    If the batch_size is specified, the function will return a Generator that will yield Query objects containing the deletion of
     {batch_size} rows
 
     """
